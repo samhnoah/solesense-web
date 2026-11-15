@@ -3,7 +3,7 @@
 BLE = Bluetooth Low Energy. GATT = Generic Attribute Profile, the BLE way of
 exposing named values ("characteristics") grouped into "services".
 
-The app (`src/lib/device.ts`) looks for a device that advertises the service
+The test (`src/test/source.ts`) looks for a device that advertises the service
 below and subscribes to one characteristic. No firmware exists yet; this file
 is the contract the ESP32 firmware has to meet for "Connect a SoleSense" to work.
 
@@ -22,7 +22,7 @@ Rules:
   the browser's device picker will not list it.
 - Send 0 (or small noise around 0) when nothing is pressed.
 - The app treats a press as applied when the force stays within 10 ± 1.5 gf for
-  1 second. Those numbers are constants at the top of `src/lib/device.ts`.
+  1 second. Those numbers are constants at the top of `src/test/source.ts`.
 - Web Bluetooth needs HTTPS (GitHub Pages provides it) and Chrome or Edge on
   Android, Windows, macOS or Linux. It does not work in Safari or on iPhone.
 

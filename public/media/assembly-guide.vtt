@@ -1,0 +1,214 @@
+WEBVTT
+
+00:00.700 --> 00:07.444
+This guide builds the complete SoleSense: the handle and its electronics, the pressure head, and the vibration head.
+
+00:07.664 --> 00:11.940
+Match parts by shape and number; colours are only for identification.
+
+00:12.160 --> 00:13.646
+Pause after each step.
+
+00:16.700 --> 00:17.912
+Lay out the prints.
+
+00:18.132 --> 00:23.125
+The two handle halves are zero one and zero two; the trays and shelf carry the boards.
+
+00:23.345 --> 00:26.329
+The thin rectangular spring is cassette fifty seven.
+
+00:26.549 --> 00:28.845
+Inspect its beams for cracks or bowing.
+
+00:29.065 --> 00:31.531
+Bridge fifty five is a temporary tool.
+
+00:34.700 --> 00:37.514
+Most screws come from your M two to M five kit.
+
+00:37.734 --> 00:48.303
+You still need four M three by thirty five cover screws, two M two by twenty five collar bolts and six M three heat-set inserts, plus an eighteen six fifty cell and two switches.
+
+00:48.523 --> 00:50.617
+Measure one magnet before printing.
+
+00:54.700 --> 00:56.776
+Check the modules against this list.
+
+00:56.996 --> 00:58.492
+Each has a printed seat.
+
+00:58.712 --> 01:03.449
+The magnets and micro SD board were sized from a photo, so measure them first.
+
+01:03.669 --> 01:07.121
+Leave the header pins off the ESP thirty two and the display.
+
+01:10.700 --> 01:12.688
+Wire everything on the bench first.
+
+01:12.908 --> 01:18.613
+Bridge the boost module's five volt jumper and measure its output before connecting the ESP thirty two.
+
+01:18.833 --> 01:24.430
+Follow the pin map for the display, card, button and head harness, then power up once.
+
+01:34.700 --> 01:38.063
+Heat-set six M three inserts into the lower handle bosses.
+
+01:38.283 --> 01:41.694
+Press each one straight and flush, and let the handle cool.
+
+01:49.700 --> 01:57.749
+Solder the cell tabs to the charger, strap the charger to tray zero four, and seat it in the side pod with its USB C port at the opening.
+
+01:57.969 --> 02:00.010
+Then lay the cell in its two saddles.
+
+02:08.700 --> 02:14.995
+Strap the micro SD module to tray zero five, card slot forward, and set it on its supports.
+
+02:15.215 --> 02:22.601
+Strap the boost module to shelf twenty, input end toward the heel, and screw the shelf to the four columns with M two by eight screws.
+
+02:29.700 --> 02:36.566
+Lay the ESP thirty two on tray zero three with its USB C end against the two heel stops, and strap it down.
+
+02:36.786 --> 02:38.518
+Set the tray above the battery.
+
+02:38.738 --> 02:41.231
+Its port lines up with the opening in the heel.
+
+02:47.700 --> 02:49.302
+Turn the upper handle over.
+
+02:49.522 --> 02:56.376
+Lay the display face down in its pod, pins toward the slot, and fit retainer thirty with two M two by eight screws.
+
+02:56.596 --> 03:00.188
+Drop in the button cap and glue the slide switch under the heel slot.
+
+03:08.700 --> 03:12.811
+Fit the tactile switch on button platform twenty nine and screw it down.
+
+03:13.031 --> 03:18.553
+Run the four head wires forward through wire clamp fourteen and fix it with two M two by eight screws.
+
+03:18.773 --> 03:22.934
+Leave about sixty millimetres of slack, ending in the four way connector.
+
+03:27.700 --> 03:32.174
+Lower the upper handle into place, making sure no wire is caught at the seam.
+
+03:32.394 --> 03:37.132
+Fit six M three by sixteen screws into the inserts, and tighten them evenly.
+
+03:44.700 --> 03:50.387
+Close the two collar halves around the handle shoulders and bolt them with two M two by twenty five screws.
+
+03:50.607 --> 03:56.239
+Fit the safety slider with one M two by eight screw and a washer, snug enough that it still slides.
+
+04:03.700 --> 04:05.291
+Turn the head chassis over.
+
+04:05.511 --> 04:11.189
+Fit four M three adaptor nuts, two M three sensor nuts, and two M two cassette nuts.
+
+04:11.409 --> 04:14.770
+Join adaptor forty one with four M three by eight screws.
+
+04:23.700 --> 04:26.465
+Work on carriage forty four outside the housing.
+
+04:26.685 --> 04:28.243
+Fit four M two nuts.
+
+04:28.463 --> 04:33.064
+Glue a stack of two disc magnets into the nose of holder forty six and let it cure.
+
+04:33.284 --> 04:37.288
+Then push the holder into the carriage and fit two M two by twelve screws.
+
+04:46.700 --> 04:50.680
+Place the wide moving rail against the bottoms of the two carriage posts.
+
+04:50.900 --> 04:53.969
+Drive two M two by eight screws upward from underneath.
+
+04:54.189 --> 04:58.047
+Do this outside the housing, because the floor blocks access later.
+
+05:07.700 --> 05:10.337
+Fit the small cartridge lock and leave it loose.
+
+05:10.557 --> 05:16.047
+Then lower the carriage and cassette into the chassis, holding the solid parts, never the beams.
+
+05:16.267 --> 05:18.531
+The narrow rail rests on its two pads.
+
+05:26.700 --> 05:32.599
+Fit three M three nuts in bridge fifty five and secure it with two M three by thirty five screws from below.
+
+05:32.819 --> 05:35.080
+Add the M three by twenty service pin.
+
+05:35.300 --> 05:37.688
+It should slide into the shoulder bore easily.
+
+05:45.700 --> 05:49.512
+Drive the last two M two by eight screws downward through the narrow rail.
+
+05:49.732 --> 05:51.880
+Tighten evenly with the cassette flat.
+
+05:52.100 --> 05:55.462
+Remove the service pin and check that the carriage returns freely.
+
+06:03.700 --> 06:06.396
+Solder the sensor leads and capacitor first.
+
+06:06.616 --> 06:09.893
+Seat the forty nine E with its flat face toward the magnet.
+
+06:10.113 --> 06:17.940
+Fix mount forty seven with two M three by eight screws, centred in the slots, and run the wires out the rear opening to the head connector.
+
+06:25.700 --> 06:27.658
+Remove the service pin and the bridge.
+
+06:27.878 --> 06:35.101
+Fit five M three nuts into cover forty three, lower it, and fasten all four M three by thirty five screws from underneath.
+
+06:45.700 --> 06:48.547
+Stick the motor into the pocket in dome cap eleven.
+
+06:48.767 --> 06:52.089
+Fix the driver board inside body ten with its connector.
+
+06:52.309 --> 06:55.268
+Then close the cap with three M three by eight screws.
+
+07:07.700 --> 07:10.055
+Pull the slider back and unlock the collar.
+
+07:10.275 --> 07:13.280
+Plug in the head connector and tuck the slack into the joint.
+
+07:13.500 --> 07:18.258
+Push the head on, turn the collar thirty degrees, and push the slider forward.
+
+07:27.700 --> 07:32.891
+Fit bench cartridge forty nine, turn it thirty degrees, and gently tighten the lock.
+
+07:33.111 --> 07:34.814
+Remove the whole service pin.
+
+07:35.034 --> 07:38.942
+Charge, switch on, and check that the Hall reading moves smoothly.
+
+07:39.162 --> 07:41.541
+Then calibrate against a checked balance.
