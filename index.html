@@ -1,17 +1,399 @@
 <!doctype html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>SoleSense</title>
-    <meta name="description" content="SoleSense is an open prototype for testing what the sole of the foot can feel. Try the 10 gram touch test." />
-    <meta name="theme-color" content="#F3F7FC" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0A1524" media="(prefers-color-scheme: dark)" />
-    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
-    <link rel="manifest" href="./manifest.webmanifest" />
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#040807">
+<title>SoleSense — A touch you can measure</title>
+<meta name="description" content="SoleSense is an open-hardware handheld instrument for the diabetic foot-sensation test. It presses the sole with a force it can read, so every touch becomes a number on record. A BatLabs project.">
+<meta property="og:title" content="SoleSense — A touch you can measure">
+<meta property="og:description" content="An open-hardware instrument for the 10 gram foot-sensation test: a printed spring, a magnet and a Hall sensor that turn a press into a number.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://samhnoah.github.io/solesense-web/og.jpg">
+<meta property="og:url" content="https://samhnoah.github.io/solesense-web/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="preload" href="./fonts/vg5000.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./fonts/jost-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="./models/solesense.glb" as="fetch" crossorigin>
+</head>
+<body class="is-loading">
+
+<!-- ───────────── Preloader: tares to 10 g, then opens ───────────── -->
+<div class="preloader" id="preloader" aria-hidden="true">
+  <div class="preloader__inner">
+    <svg class="mark mark--xl" viewBox="0 0 32 32"><path class="mark__fil" d="M16 2.5c0 8 3.4 12.6 0 21.5"/><path d="M2.5 20.5c5.5 0 8 4 13.5 4s8-4 13.5-4"/><path class="mark__ripple" d="M8 27.6c2.6 1.2 5 1.8 8 1.8s5.4-.6 8-1.8"/></svg>
+    <div class="preloader__word">SoleSense</div>
+    <div class="preloader__bar"><i id="preloader-bar"></i></div>
+    <div class="preloader__row mono"><span id="preloader-state">TARING</span><span><b id="preloader-gf">00.0</b> GF</span></div>
+  </div>
+</div>
+
+<!-- ───────────── Fixed layers ───────────── -->
+<div class="backdrop" aria-hidden="true"></div>
+<canvas id="scene" class="scene" aria-hidden="true"></canvas>
+<div class="scene-hud" id="scene-hud" aria-hidden="true"><svg class="scene-hud__lines" id="scene-lines"></svg></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"><i></i><span class="mono" id="cursor-read"></span></div>
+
+<header class="nav" id="nav">
+  <a href="#hero" class="brand" aria-label="SoleSense, back to top">
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5c0 8 3.4 12.6 0 21.5"/><path d="M2.5 20.5c5.5 0 8 4 13.5 4s8-4 13.5-4"/><path d="M8 27.6c2.6 1.2 5 1.8 8 1.8s5.4-.6 8-1.8" opacity=".5"/></svg>
+    <span>SoleSense<small>BY BATLABS</small></span>
+  </a>
+  <div class="nav__topic mono">OPEN HARDWARE <b>/</b> FOOT-SENSATION TESTING</div>
+  <nav class="nav__links mono" aria-label="Chapters">
+    <a href="#problem">Problem</a><a href="#test">The test</a><a href="#inside">Inside</a><a href="#press" data-press-link>Press</a><a href="#guide">Guide</a><a href="#status">Status</a>
+    <a href="#try" class="nav__cta"><i class="dot"></i> Try the 10 g test</a>
+  </nav>
+</header>
+
+<aside class="gauge" id="gauge" aria-hidden="true">
+  <div class="gauge__rule">
+    <u style="--p:.16"><b>1</b></u><u style="--p:.553"><b>10</b></u><u style="--p:1"><b>75</b></u>
+    <i id="gauge-mark"></i>
+  </div>
+  <div class="gauge__read mono"><span id="gauge-gf">00.0 gf</span><small>LOAD</small></div>
+</aside>
+
+<main id="main">
+
+<!-- ───────────── 01 · Hero ───────────── -->
+<section id="hero" class="hero" data-scene="hero">
+  <div class="hero__meta mono hero__intro">
+    <span><i class="dot"></i> 01 / OPEN HARDWARE · FOOT-SENSATION TESTING</span>
+    <span class="hero__meta-r">A BATLABS PROJECT · UAE</span>
+  </div>
+  <h1 class="hero__title" id="hero-title" aria-label="A touch you can measure.">
+    <span class="l"><span>A touch</span></span>
+    <span class="l"><span>you can</span></span>
+    <span class="l"><span><em>measure.</em></span></span>
+  </h1>
+  <div class="hero__foot hero__intro">
+    <p class="hero__lede">SoleSense is a handheld instrument for the diabetic foot-sensation test. It presses the sole with a force it can read, so every touch becomes a number on record.</p>
+    <div class="hero__cta">
+      <a href="#try" class="btn btn--solid"><span>Try the 10 g test</span><i>↘</i></a>
+      <a href="#inside" class="btn btn--ghost"><span>See inside</span><i>↓</i></a>
+    </div>
+  </div>
+  <div class="hero__index mono hero__intro"><span>FIG. 01 — LIVE CAD MODEL</span><span>73 PARTS · CURRENT DESIGN</span><span class="hero__hint">MOVE YOUR CURSOR</span></div>
+  <figure class="hero__fallback" hidden><img src="./img/device.webp" alt="Render of the SoleSense prototype: a light grey handle with a small screen, a teal twist-lock collar and a rounded pressure head with a thin filament at its tip." width="900" height="560"></figure>
+  <div class="hero__scroll mono" aria-hidden="true"><i></i>SCROLL</div>
+</section>
+
+<!-- ───────────── 02 · The problem ───────────── -->
+<section id="problem" class="ch problem">
+  <div class="wrap">
+    <div class="ch__head">
+      <span class="eyebrow mono">02 / THE SILENT PROBLEM</span>
+      <h2 class="display" id="problem-title"><span class="approx">≈</span><span class="count" data-count="589">589</span> million<br><em>live with diabetes.</em></h2>
+      <p class="src mono">ADULTS AGED 20–79 · <a class="cite" href="https://idf.org/news-and-resources/news/idf-diabetes-atlas-11th-edition/" target="_blank" rel="noopener">IDF DIABETES ATLAS, 11TH EDITION, 2025 ↗</a></p>
+    </div>
+
+    <div class="problem__grid">
+      <figure class="field" id="field">
+        <canvas id="field-canvas" role="img" aria-label="Illustration: a sole of the foot drawn as a field of glowing points. As the page scrolls, the points go dark from the toes back toward the heel."></canvas>
+        <div class="field__hud mono">
+          <span class="field__tl">FIG. 02 — SENSATION MAP, SOLE VIEW</span>
+          <span class="field__tr" id="field-pct">FEELING 100%</span>
+          <span class="field__bl">ILLUSTRATIVE · NEUROPATHY USUALLY<br>STARTS AT THE TOES AND MOVES UP</span>
+        </div>
+      </figure>
+      <div class="problem__copy">
+        <p class="lead reveal">High blood sugar wears down the longest nerves first. The toes go quiet, then the ball of the foot, then the rest.</p>
+        <p class="reveal">Without feeling, pain stops doing its job. A stone in a shoe or a blister goes unnoticed for days, and a small wound can turn into an ulcer.</p>
+        <div class="stats">
+          <article class="stat reveal"><b>19–34<u>%</u></b><h3>Lifetime chance of a foot ulcer</h3><p>for a person living with diabetes.</p><a class="cite" href="https://doi.org/10.1056/NEJMra1615439" target="_blank" rel="noopener">Armstrong, Boulton &amp; Bus · NEJM 2017 ↗</a></article>
+          <article class="stat reveal"><b><span data-count="252">252</span><u>M</u></b><h3>Undiagnosed</h3><p>adults with diabetes who don’t know it yet.</p><a class="cite" href="https://idf.org/news-and-resources/news/idf-diabetes-atlas-11th-edition/" target="_blank" rel="noopener">IDF Diabetes Atlas 2025 ↗</a></article>
+          <article class="stat reveal"><b><span data-count="853">853</span><u>M</u></b><h3>By 2050</h3><p>adults projected to be living with diabetes.</p><a class="cite" href="https://idf.org/news-and-resources/news/idf-diabetes-atlas-11th-edition/" target="_blank" rel="noopener">IDF Diabetes Atlas 2025 ↗</a></article>
+        </div>
+      </div>
+    </div>
+
+    <p class="quote" data-split>A foot that cannot feel <em>cannot warn you.</em></p>
+  </div>
+</section>
+
+<!-- ───────────── 03 · The test ───────────── -->
+<section id="test" class="ch testch">
+  <div class="wrap">
+    <div class="ch__head">
+      <span class="eyebrow mono">03 / THE TEST</span>
+      <h2 class="display" data-split>Ten grams.<br><em>Give or take.</em></h2>
+      <p class="lead reveal">The standard screen is a nylon monofilament. A clinician presses it against the sole until it bends, at about 10 grams of force. If the patient can’t feel it, that part of the foot has lost its protective sensation.</p>
+    </div>
+  </div>
+
+  <div class="buckle" id="buckle">
+    <div class="buckle__stage">
+      <div class="wrap buckle__grid">
+        <figure class="buckle__fig">
+          <canvas id="buckle-canvas" role="img" aria-label="Animation: a nylon filament presses into skin. The force rises until the filament bends at about 10 grams, then stops rising. A shaded band shows how much the bending force varies between filaments."></canvas>
+          <span class="mono buckle__tag">FIG. 03 — MONOFILAMENT, SIDE VIEW · SCROLL TO PRESS</span>
+        </figure>
+        <div class="buckle__side">
+          <ol class="buckle__steps mono" id="buckle-steps">
+            <li class="is-on"><b>01</b> Contact</li>
+            <li><b>02</b> Load rises</li>
+            <li><b>03</b> Buckles at ≈ 10 g</li>
+            <li><b>04</b> But which 10 g?</li>
+          </ol>
+          <div class="buckle__read">
+            <span class="mono">FORCE AT THE TIP</span>
+            <b class="display display--m"><span id="buckle-gf">0.0</span><u>g</u></b>
+            <p id="buckle-note">The filament touches the skin.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="stats stats--3 testch__stats">
+      <article class="stat reveal"><b><span data-count="70">70</span><u>%</u></b><h3>Within ±1 g</h3><p>Only 70% of one supplier’s new filaments buckled within a gram of 10 g.</p><a class="cite" href="https://doi.org/10.2337/diacare.23.7.984" target="_blank" rel="noopener">Booth &amp; Young · Diabetes Care 2000 ↗</a></article>
+      <article class="stat reveal"><b><span data-count="200">200</span><u>×</u></b><h3>Presses later</h3><p>Only half of the most accurate filaments still buckled within 10% of 10 g.</p><a class="cite" href="https://doi.org/10.2337/diacare.23.7.984" target="_blank" rel="noopener">Booth &amp; Young · Diabetes Care 2000 ↗</a></article>
+      <article class="stat reveal"><b>1<u>bit</u></b><h3>Is all it reports</h3><p>A filament says one thing: it bent. Not how hard, not for how long, and nothing goes on record.</p></article>
+    </div>
+
+    <ol class="history">
+      <li class="reveal"><span class="mono">1896</span><p>Max von Frey measures touch with calibrated hairs, each bending at its own force.</p></li>
+      <li class="reveal"><span class="mono">1960</span><p>Josephine Semmes and Sidney Weinstein switch to nylon filaments. The filaments still carry their names.</p></li>
+      <li class="reveal"><span class="mono">1986</span><p>At the leprosy hospital in Carville, Louisiana, missing the 10 g filament is linked to foot-ulcer risk.</p></li>
+      <li class="reveal"><span class="mono">Today</span><p>Guidelines from the IWGDF call for checking protective sensation in every person with diabetes, at least once a year.</p></li>
+    </ol>
+
+    <p class="bridge display display--s" data-split>SoleSense keeps the simple test<br><em>and adds the missing number.</em></p>
+  </div>
+</section>
+
+<!-- ───────────── 04–05 · Inside + press (pinned 3D) ───────────── -->
+<section id="inside" class="inside" data-steps="6">
+  <div class="inside__pin" id="inside-pin">
+    <div class="inside__cards">
+      <article class="card" data-step="0">
+        <span class="eyebrow mono">04 / INSIDE · 1 OF 5</span>
+        <h2 class="display display--m">One handle.<br><em>Two heads.</em></h2>
+        <p>A pressure head and a vibration head share one handle. Each locks on with a 30° twist and a safety slider, and a four-wire harness runs through the joint.</p>
+        <ul class="chips mono"><li>PRESSURE HEAD</li><li>VIBRATION HEAD</li><li>30° TWIST-LOCK</li></ul>
+      </article>
+      <article class="card" data-step="1">
+        <span class="eyebrow mono">04 / INSIDE · 2 OF 5</span>
+        <h2 class="display display--m">Lift the lid.<br><em>Three parts do the work.</em></h2>
+        <p>Inside the 76 × 56 × 44 mm pressure head sit a printed spring, a pair of magnets and a Hall sensor. Four long screws from underneath hold the cover on.</p>
+        <ul class="chips mono"><li>76 × 56 × 44 MM</li><li>4 × M3 × 35</li><li>REPLACEABLE CARTRIDGE</li></ul>
+      </article>
+      <article class="card" data-step="2">
+        <span class="eyebrow mono">04 / INSIDE · 3 OF 5</span>
+        <h2 class="display display--m">A spring<br><em>you can print.</em></h2>
+        <p>The teal cassette is one flat print: a fixed rail, two thin beams and a moving rail. Nothing slides in the sensing path, so nothing rubs. Swap in 1.0 or 1.2 mm beams for a stiffer spring.</p>
+        <ul class="chips mono"><li>ONE PART</li><li>2 BEAMS, 27 MM APART</li><li>0.8 · 1.0 · 1.2 MM</li></ul>
+      </article>
+      <article class="card" data-step="3">
+        <span class="eyebrow mono">04 / INSIDE · 4 OF 5</span>
+        <h2 class="display display--m">A magnet that moves.<br><em>A sensor that stays.</em></h2>
+        <p>Two Ø3 mm disc magnets ride on the blue carriage with the filament. Five millimetres away, a fixed 49E Hall sensor reads their field: about 17 mT at rest, about 50 mT at the 2 mm travel stop.</p>
+        <ul class="chips mono"><li>5.0 MM GAP</li><li>≈ 17 → 50 MT</li><li>2.0 MM STOP</li></ul>
+      </article>
+      <article class="card" data-step="4">
+        <span class="eyebrow mono">04 / INSIDE · 5 OF 5</span>
+        <h2 class="display display--m">The brains<br><em>in the handle.</em></h2>
+        <p>An ESP32 reads the sensor. A 0.96 in screen shows the reading, a microSD card logs every sample, and an 18650 cell with USB-C charging powers the lot.</p>
+        <ul class="chips mono"><li>ESP32</li><li>0.96 IN OLED</li><li>MICROSD LOG</li><li>18650 · USB-C</li></ul>
+      </article>
+      <article class="card card--press" data-step="5" id="press">
+        <span class="eyebrow mono">05 / PRESS IT</span>
+        <h2 class="display display--m">Press<br><em>and hold.</em></h2>
+        <p>The tip pushes the carriage, the beams bend, the magnet closes on the sensor and the reading climbs. Try a stiffer spring and feel the difference.</p>
+        <div class="press-ctl">
+          <button type="button" class="hold" id="press-hold" aria-describedby="press-help"><span class="hold__ring"></span><span class="hold__label">Hold to press</span><kbd class="mono">SPACE</kbd></button>
+          <div class="seg-ctl mono" id="press-beam" role="radiogroup" aria-label="Spring beam width">
+            <button type="button" role="radio" aria-checked="true" data-t="0.8">0.8 mm</button>
+            <button type="button" role="radio" aria-checked="false" data-t="1.0">1.0 mm</button>
+            <button type="button" role="radio" aria-checked="false" data-t="1.2">1.2 mm</button>
+          </div>
+        </div>
+        <p class="press-help mono" id="press-help">HOLD THE BUTTON OR THE SPACE BAR · RELEASE TO LET THE SPRING RETURN</p>
+      </article>
+    </div>
+
+    <div class="press-hud mono" id="press-hud" aria-live="polite">
+      <div class="press-hud__force"><span>FORCE</span><b><i id="ph-gf">0.0</i><u>gf</u></b></div>
+      <div class="press-hud__bar" id="ph-bar">
+        <i class="press-hud__fill" id="ph-fill"></i>
+        <span class="tick" data-gf="1">1</span><span class="tick" data-gf="10">10</span><span class="tick" data-gf="75">75</span>
+        <span class="stop" id="ph-stop">STOP</span>
+      </div>
+      <dl>
+        <div><dt>TRAVEL</dt><dd><i id="ph-mm">0.000</i> mm</dd></div>
+        <div><dt>FIELD</dt><dd><i id="ph-mt">17.2</i> mT</dd></div>
+        <div><dt>HALL OUT</dt><dd><i id="ph-mv">1805</i> mV</dd></div>
+        <div><dt>GAP</dt><dd><i id="ph-gap">5.00</i> mm</dd></div>
+      </dl>
+      <p class="press-hud__state" id="ph-state">AT REST</p>
+      <small>IDEAL-BEAM ESTIMATE · E = 2500 MPA AND N35 MAGNETS ASSUMED · TRAVEL DRAWN ×2 · 1, 10, 75 GF ARE DESIGN TARGETS</small>
+    </div>
+
+    <div class="inside__progress" aria-hidden="true"><i id="inside-bar"></i></div>
+    <div class="inside__fallback" hidden>
+      <figure><img src="./img/exploded.webp" alt="Exploded view of the pressure head: the blue carriage lifted above the teal printed spring cassette inside the white housing." loading="lazy" width="900" height="560"><figcaption class="mono">EXPLODED HEAD · CAD RENDER</figcaption></figure>
+      <figure><img src="./img/inside.webp" alt="Cutaway of the assembled pressure head showing the carriage, the spring cassette and the Hall sensor mounted at the back." loading="lazy" width="900" height="560"><figcaption class="mono">INSIDE THE HEAD · CAD RENDER</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── 06 · Foot guide ───────────── -->
+<section id="guide" class="ch guide">
+  <div class="wrap guide__grid">
+    <div class="guide__copy">
+      <span class="eyebrow mono">06 / THE FOOT GUIDE</span>
+      <h2 class="display" data-split>Four windows.<br><em>One sole.</em></h2>
+      <p class="lead reveal">A clear acrylic template puts the test in the same places every time. Lay it on the sole, line up the heel mark, and the four windows show where to touch.</p>
+      <ol class="sites" id="guide-sites"></ol>
+      <ul class="specs mono reveal">
+        <li><b>3 MM</b>CLEAR ACRYLIC, NOMINAL</li>
+        <li><b>5 × 2</b>SIZES, LEFT AND RIGHT</li>
+        <li><b>SVG · DXF</b>1:1 MM, READY TO LASER-CUT</li>
+      </ul>
+      <p class="fine mono reveal">FIT PROTOTYPE · SITE POSITIONS ARE ILLUSTRATIVE AND AWAIT CLINICAL REVIEW</p>
+    </div>
+    <figure class="plate" id="guide-plate">
+      <svg id="guide-svg" viewBox="-6 -6 152 336" role="img" aria-labelledby="guide-svg-title">
+        <title id="guide-svg-title">Clear acrylic foot guide, sole view, with four numbered test windows</title>
+      </svg>
+      <div class="plate__hud mono">
+        <span class="plate__tl">PLATE 06 — CLEAR FOOT GUIDE · RIGHT · SOLE VIEW</span>
+        <span class="plate__br" id="guide-dims">FOOT 260 × 104 MM<br>PLATE 120 × 276 MM</span>
+      </div>
+      <div class="seg-ctl seg-ctl--sizes mono" id="guide-sizes" role="radiogroup" aria-label="Template size"></div>
+    </figure>
+  </div>
+</section>
+
+<!-- ───────────── 07 · Status ───────────── -->
+<section id="status" class="ch status">
+  <div class="wrap">
+    <div class="ch__head">
+      <span class="eyebrow mono">07 / BUILT IN THE OPEN</span>
+      <h2 class="display" data-split>Designed. Checked.<br><em>Next, the bench.</em></h2>
+    </div>
+
+    <div class="numbers">
+      <article class="reveal"><b class="display display--m"><span data-count="35">35</span></b><p>print-ready part files</p></article>
+      <article class="reveal"><b class="display display--m"><span data-count="6">6</span></b><p>packed print plates</p></article>
+      <article class="reveal"><b class="display display--m"><span data-count="29">29</span></b><p>page illustrated build guide</p></article>
+      <article class="reveal"><b class="display display--m">7:49</b><p>narrated assembly video</p></article>
+    </div>
+
+    <div class="status__grid">
+      <div class="ledger reveal">
+        <h3 class="mono"><i class="ok"></i> DONE</h3>
+        <ul>
+          <li>Full 3D design in FreeCAD and STEP, with every part ready to print</li>
+          <li>Recorded CAD checks: closed solids, clean exports, spring travel, clearances, service access</li>
+          <li>Wiring and ESP32 pin map, fitted to electronics already bought</li>
+          <li>Illustrated assembly PDF and a narrated video, every screw included</li>
+          <li>Clear foot guide in five sizes, left and right</li>
+          <li>The Bluetooth contract this website’s test speaks</li>
+        </ul>
+      </div>
+      <div class="ledger ledger--next reveal">
+        <h3 class="mono"><i class="next"></i> NEXT</h3>
+        <ul>
+          <li>Print the parts and check the fit</li>
+          <li>Calibrate force against a checked balance, 0 to 75 gf, loading and unloading</li>
+          <li>Write the ESP32 firmware: reading, logging, display and Bluetooth</li>
+          <li>Measure accuracy, drift and repeatability over many presses</li>
+          <li>Clinical review of the test sites and the workflow</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="film reveal">
+      <button type="button" class="film__poster" id="film-open" aria-haspopup="dialog">
+        <img src="./media/assembly-poster.webp" alt="" loading="lazy" width="1280" height="720">
+        <span class="film__play" aria-hidden="true"><i></i></span>
+        <span class="film__label"><span class="mono">ASSEMBLY GUIDE · 7:49 · CAPTIONED</span><b class="display display--s">Watch the whole build</b></span>
+      </button>
+      <ol class="revs">
+        <li><span class="mono">R03–R06</span><p>Concept studies of the head and handle</p></li>
+        <li><span class="mono">R07</span><p>Magnetic head on metal leaf springs</p></li>
+        <li><span class="mono">R08</span><p>The printed flexure replaces the leaves</p></li>
+        <li class="is-now"><span class="mono">NOW</span><p>Fitted to the bought electronics, full assembly guide</p></li>
+      </ol>
+    </div>
+
+    <aside class="caveat reveal">
+      <b class="mono">PLEASE NOTE</b>
+      <p>SoleSense is an experimental bench prototype. It is not a medical device and must not be used to diagnose anyone. The 1, 10 and 75 gf figures are design targets; force accuracy will be measured on the bench.</p>
+    </aside>
+  </div>
+</section>
+
+<!-- ───────────── 08 · Finale: try the test ───────────── -->
+<section id="try" class="ch try">
+  <div class="wrap">
+    <div class="ch__head ch__head--split">
+      <div>
+        <span class="eyebrow mono">08 / FINALE · TRY THE TEST</span>
+        <h2 class="display" data-split>Ten grams,<br><em>your turn.</em></h2>
+      </div>
+      <p class="lead reveal">Walk through a 10 gram screening on a map of the foot. Press, hold, answer. It takes about a minute, and nothing is saved.</p>
+    </div>
+    <div class="stage" id="try-stage"></div>
+    <p class="try__kiosk mono"><a href="./test.html" class="cite">OPEN FULL-SCREEN KIOSK MODE ↗</a><span>FOR EXHIBITIONS · CONNECTS TO A SOLESENSE OVER BLUETOOTH</span></p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__grid">
+    <div class="foot__brand">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5c0 8 3.4 12.6 0 21.5"/><path d="M2.5 20.5c5.5 0 8 4 13.5 4s8-4 13.5-4"/><path d="M8 27.6c2.6 1.2 5 1.8 8 1.8s5.4-.6 8-1.8" opacity=".5"/></svg>
+      <p class="display display--s">A touch you<br>can <em>measure.</em></p>
+      <p class="mono">SOLESENSE · A BATLABS PROJECT<br>OPEN HARDWARE · EXPERIMENTAL PROTOTYPE</p>
+    </div>
+    <div class="foot__col">
+      <h4 class="mono">SOURCES</h4>
+      <a href="https://idf.org/news-and-resources/news/idf-diabetes-atlas-11th-edition/" target="_blank" rel="noopener">IDF Diabetes Atlas, 11th edition ↗</a>
+      <a href="https://doi.org/10.1056/NEJMra1615439" target="_blank" rel="noopener">Armstrong, Boulton &amp; Bus · NEJM 2017 ↗</a>
+      <a href="https://doi.org/10.2337/diacare.23.7.984" target="_blank" rel="noopener">Booth &amp; Young · Diabetes Care 2000 ↗</a>
+      <a href="https://iwgdfguidelines.org/" target="_blank" rel="noopener">IWGDF guidelines ↗</a>
+    </div>
+    <div class="foot__col">
+      <h4 class="mono">THE HARDWARE</h4>
+      <a href="https://github.com/mustafamoe/sole-sense" target="_blank" rel="noopener">Hardware repository ↗</a>
+      <a href="https://github.com/mustafamoe/sole-sense/blob/main/output/pdf/SoleSense_Assembly_Guide.pdf" target="_blank" rel="noopener">Assembly guide, PDF ↗</a>
+      <a href="https://github.com/mustafamoe/sole-sense/blob/main/hardware/docs/SHOPPING_LIST.md" target="_blank" rel="noopener">Parts list ↗</a>
+      <a href="https://github.com/mustafamoe/sole-sense/blob/main/hardware/docs/ENGINEERING_NOTES.md" target="_blank" rel="noopener">Engineering notes ↗</a>
+      <a href="https://github.com/mustafamoe/sole-sense/blob/main/hardware/docs/WIRING_AND_CALIBRATION.md" target="_blank" rel="noopener">Wiring and calibration ↗</a>
+    </div>
+    <div class="foot__col">
+      <h4 class="mono">THIS SITE</h4>
+      <a href="./test.html">10 g test, kiosk mode</a>
+      <a href="https://github.com/samhnoah/solesense-web/blob/main/docs/BLE_PROTOCOL.md" target="_blank" rel="noopener">Bluetooth contract ↗</a>
+      <a href="https://github.com/samhnoah/solesense-web" target="_blank" rel="noopener">Website source ↗</a>
+      <a href="https://batlabs.ae" target="_blank" rel="noopener">BatLabs ↗</a>
+    </div>
+  </div>
+  <div class="wrap foot__fine mono">
+    <span>EXPERIMENTAL PROTOTYPE · NOT A MEDICAL DEVICE · NOT FOR DIAGNOSIS · 3D MODEL BUILT FROM THE PROJECT’S OWN CAD · VG5000 BY JUSTIN BIHAN / VELVETYNE AND JOST, SIL OFL 1.1</span>
+    <a href="#hero">BACK TO THE TOP ↑</a>
+  </div>
+</footer>
+
+<dialog class="modal" id="film-modal" aria-label="SoleSense assembly guide video">
+  <div class="modal__frame">
+    <video id="film-video" controls playsinline preload="none" poster="./media/assembly-poster.webp">
+      <source src="./media/assembly-guide.mp4" type="video/mp4">
+      <track kind="captions" src="./media/assembly-guide.vtt" srclang="en" label="English" default>
+    </video>
+    <div class="modal__bar mono"><span>SOLESENSE ASSEMBLY GUIDE · 7:49 · SYNTHETIC NARRATION</span><button type="button" class="icon-btn" id="film-close" aria-label="Close video">✕</button></div>
+  </div>
+</dialog>
+
+<noscript><style>.preloader{display:none}body.is-loading{overflow:auto}</style><div class="noscript">This site’s 3D model and interactive test need JavaScript. The design files and documentation are in the <a href="https://github.com/mustafamoe/sole-sense">hardware repository</a>.</div></noscript>
+
+<script type="module" src="./src/main.ts"></script>
+</body>
 </html>

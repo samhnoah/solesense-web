@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#040807">
+<title>SoleSense — 10 gram touch test</title>
+<meta name="description" content="A 10 gram foot-sensation screening demonstration on a map of the foot. Works with a simulated device on any screen, or a SoleSense over Bluetooth. Not a medical test.">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="preload" href="./fonts/vg5000.woff2" as="font" type="font/woff2" crossorigin>
+</head>
+<body class="kiosk-body">
+<div class="backdrop" aria-hidden="true"></div>
+<main class="kiosk">
+  <header class="kiosk__bar">
+    <a href="./index.html" class="brand" aria-label="SoleSense home">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2.5c0 8 3.4 12.6 0 21.5"/><path d="M2.5 20.5c5.5 0 8 4 13.5 4s8-4 13.5-4"/><path d="M8 27.6c2.6 1.2 5 1.8 8 1.8s5.4-.6 8-1.8" opacity=".5"/></svg>
+      <span>SoleSense<small>10 GRAM TOUCH TEST</small></span>
+    </a>
+    <span class="mono kiosk__tag">EXPERIMENTAL PROTOTYPE · NOT A MEDICAL DEVICE</span>
+  </header>
+  <div class="stage" id="kiosk-stage"></div>
+</main>
+<script type="module" src="./src/kiosk.ts"></script>
+</body>
+</html>

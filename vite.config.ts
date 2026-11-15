@@ -1,9 +1,18 @@
+import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
 
-// Relative base + hash routing: the built site works under any path
-// (GitHub Pages project sites, a USB stick, a kiosk) without changes.
+// Relative base: the built site works under any path (GitHub Pages project
+// sites, a USB stick, an exhibition kiosk) without changes.
 export default defineConfig({
   base: './',
-  plugins: [vue()],
+  build: {
+    target: 'es2022',
+    chunkSizeWarningLimit: 900,
+    rollupOptions: {
+      input: {
+        main: resolve(import.meta.dirname, 'index.html'),
+        test: resolve(import.meta.dirname, 'test.html'),
+      },
+    },
+  },
 })
