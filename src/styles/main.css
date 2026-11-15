@@ -301,7 +301,8 @@ main { position: relative; z-index: 2; }
 .press-hud__fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, var(--teal-2), var(--amber)); }
 .press-hud__bar .tick { position: absolute; top: 100%; transform: translateX(-50%); font-size: 9px; color: var(--muted); padding-top: 4px; }
 .press-hud__bar .tick::before { content: ''; position: absolute; left: 50%; bottom: 100%; width: 1px; height: 12px; background: var(--soft); }
-.press-hud__bar .stop { position: absolute; right: 0; top: 100%; font-size: 9px; color: var(--coral); padding-top: 4px; }
+.press-hud__bar .stop { position: absolute; right: 0; bottom: 100%; font-size: 9px; color: var(--coral); padding-bottom: 4px; }
+.press-hud__bar::after { content: ''; position: absolute; right: -1px; top: -3px; bottom: -3px; width: 1px; background: var(--coral); }
 .press-hud dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin: 0; }
 .press-hud dt { font-size: 9px; color: var(--dim); }
 .press-hud dd { margin: 0; font-size: 13px; color: var(--text); font-variant-numeric: tabular-nums; }
